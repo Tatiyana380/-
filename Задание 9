@@ -1,0 +1,106 @@
+#include <iostream>
+#include <string>
+#include <list>
+#include <limits>
+using namespace std;
+// Структура для хранения данных по ремонту ноутбуков
+struct NotebookRepair {
+	string model;
+	string problem;
+	string solution;
+	double price;
+	void print() const {
+		cout << "Модель: " << model << ", Проблема: " << problem
+			<< ", Решение: " << solution << ", Цена: " << price << endl;
+	}
+};
+// Функция для очистки буфера ввода
+void clearInputBuffer() {
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+// Функция для ввода данных по ремонту ноутбука от пользователя
+NotebookRepair inputNotebookRepair() {
+	NotebookRepair repair;
+	cout << "Введите модель ноутбука: ";
+	clearInputBuffer();
+	getline(cin, repair.model);
+	cout << "Введите описание проблемы: ";
+	clearInputBuffer();
+	getline(cin, repair.problem);
+	cout << "Введите решение проблемы: ";
+	clearInputBuffer();
+	getline(cin, repair.solution);
+	cout << "Введите цену ремонта: ";
+	while (!(cin >> repair.price)) {
+		cout << "Ошибка! Введите число: ";
+		cin.clear();
+		clearInputBuffer();
+	}
+	return repair;
+}
+// Функция для поиска и обработки заказа на ремонт
+void processRepairOrder(list<NotebookRepair>& database) {
+	NotebookRepair order = inputNotebookRepair();
+	auto it = database.begin();
+	while (it != database.end()) {
+		if (it->model == order.model && it->problem == order.problem) {
+			// Заказ найден, производим редактирование
+			cout << "Найден заказ на ремонт:\n";
+			it->print();
+			it->solution = order.solution;
+			it->price = order.price;
+			return;
+		}
+		++it;
+	}
+	// Заказ не найден, добавляем его в базу
+	database.push_back(order);
+	cout << "Заказ на ремонт добавлен в базу данных.\n";
+}
+// Функция для вывода всей базы заказов на ремонт
+void printDatabase(const list<NotebookRepair>& database) {
+	cout << "База заказов на ремонт ноутбуков:\n";
+	if (database.empty()) {
+		cout << "База данных пуста.\n";
+		return;
+	}
+	for (const auto& repair : database) {
+		repair.print();
+	}
+}
+int main() {
+	setlocale(LC_ALL, "Russian");
+	list<NotebookRepair> repairDatabase;
+	int choice;
+	do {
+		cout << "\nМеню:\n";
+		cout << "1. Добавить заказ на ремонт в базу данных\n";
+		cout << "2. Подать заявку на ремонт\n";
+		cout << "3. Вывести базу данных\n";
+		cout << "0. Выход\n";
+		cout << "Выберите действие: ";
+		while (!(cin >> choice)) {
+			cout << "Ошибка! Введите число: ";
+			cin.clear();
+			clearInputBuffer();
+		}
+		switch (choice) {
+		case 1:
+			repairDatabase.push_back(inputNotebookRepair());
+			cout << "Заказ добавлен в базу данных.\n";
+			break;
+		case 2:
+			processRepairOrder(repairDatabase);
+			break;
+		case 3:
+			printDatabase(repairDatabase);
+			break;
+		case 0:
+			cout << "Программа завершена.\n";
+			break;
+		default:
+			cout << "Ошибка! Неверный пункт меню.\n";
+		}
+	} while (choice != 0);
+	return 0;
+}
